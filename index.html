@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>✨ Random HTML Page</title>
+  <meta name="description" content="A single-file random page generator with colors, shapes, quotes, and doodads." />
+  <style>
+    :root {
+      --bg: #111827;
+      --fg: #e5e7eb;
+      --accent: #60a5fa;
+      --muted: #6b7280;
+      --card: #1f2937;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell,
+        Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 10% 10%, rgba(255,255,255,0.06), transparent 40%),
+                  radial-gradient(1000px 700px at 90% 0%, rgba(255,255,255,0.05), transparent 35%),
+                  var(--bg);
+      color: var(--fg);
+      display: grid; place-items: center;
+    }
+    .wrap {
+      width: min(100%, 980px);
+      padding: 24px;
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      overflow: clip;
+    }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 20px; gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(90deg, var(--card), transparent);
+    }
+    h1 { font-size: clamp(1.1rem, 1rem + 2vw, 2rem); margin: 0; letter-spacing: 0.4px; }
+    .tag { font: 600 12px/1.1 ui-sans-serif, system-ui; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .controls { display: flex; gap: 8px; align-items: center; }
+    button {
+      appearance: none; border: 1px solid rgba(255,255,255,0.12);
+      background: var(--accent); color: #0b1020; font-weight: 700;
+      padding: 10px 14px; border-radius: 12px; cursor: pointer; transition: transform .08s ease;
+    }
+    button.secondary { background: rgba(255,255,255,0.06); color: var(--fg); }
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(0); }
+
+    .grid {
+      display: grid; grid-template-columns: 1.2fr .8fr; gap: 0; min-height: 520px;
+    }
+    .pane {
+      padding: 22px; border-right: 1px solid rgba(255,255,255,0.06);
+    }
+    .pane:last-child { border-right: none; }
+
+    .shapes {
+      width: 100%; height: 100%; background: linear-gradient(180deg, rgba(0,0,0,0.15), rgba(0,0,0,0));
+    }
+
+    .info { display: grid; gap: 16px; }
+    .kv { display: grid; grid-template-columns: 120px 1fr; gap: 6px 12px; align-items: start; }
+    .kv .k { color: var(--muted); text-transform: uppercase; font-size: 12px; letter-spacing: .08em; }
+    .kv .v { font-weight: 600; }
+    .quote { font-size: clamp(18px, 2.2vw, 28px); line-height: 1.3; }
+    .author { color: var(--muted); margin-top: 4px; font-size: 14px; }
+
+    footer { padding: 14px 20px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; }
+    .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip { padding: 6px 10px; border-radius: 999px; border: 1px dashed rgba(255,255,255,0.18); font-size: 12px; }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    @media (max-width: 820px) {
+      .grid { grid-template-columns: 1fr; }
+      .pane { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
+      .pane:last-child { border-bottom: none; }
+      .shapes { min-height: 320px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <div>
+          <div class="tag" id="tagline">random • html • page</div>
+          <h1 id="title">✨ Your Random Page</h1>
+        </div>
+        <div class="controls">
+          <button id="shuffle">Shuffle</button>
+          <button class="secondary" id="save">Save as PNG</button>
+        </div>
+      </header>
+
+      <div class="grid">
+        <div class="pane">
+          <svg id="art" class="shapes" viewBox="0 0 900 560" preserveAspectRatio="xMidYMid slice" aria-label="Generative shapes" role="img"></svg>
+        </div>
+        <div class="pane info">
+          <div class="kv">
+            <div class="k">Palette</div><div class="v" id="paletteText">—</div>
+            <div class="k">Seed</div><div class="v" id="seed">—</div>
+            <div class="k">Emoji</div><div class="v" id="emoji">—</div>
+            <div class="k">Noise</div><div class="v" id="noise">—</div>
+          </div>
+          <div>
+            <div class="quote" id="quote">“We are made of starstuff.”</div>
+            <div class="author" id="author">— Carl Sagan</div>
+          </div>
+          <div class="chips" id="chips"></div>
+        </div>
+      </div>
+
+      <footer>
+        <div>Made with <span id="heart">❤</span> by JS. Refresh or press <strong>Shuffle</strong> for new randomness.</div>
+        <div><a href="#" id="permalink">Permalink</a></div>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    // --- simple seeded RNG ---
+    function xmur3(str){for(var i=0,h=1779033703^str.length;i<str.length;i++)h=Math.imul(h^str.charCodeAt(i),3432918353),h=h<<13|h>>>19;return function(){h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return (h^h>>>16)>>>0}}
+    function mulberry32(a){return function(){var t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296}}
+
+    // palettes
+    const palettes = [
+      ["#0ea5e9","#22d3ee","#a78bfa","#f472b6","#f59e0b"], // aurora
+      ["#ef4444","#f97316","#facc15","#22c55e","#3b82f6"], // hot/cold
+      ["#14b8a6","#06b6d4","#60a5fa","#c084fc","#f472b6"], // sea candy
+      ["#e11d48","#fb7185","#fde68a","#34d399","#60a5fa"], // sunset
+      ["#06b6d4","#10b981","#84cc16","#f59e0b","#f43f5e"], // tropic
+    ];
+
+    const quotes = [
+      ["The best way out is always through.","Robert Frost"],
+      ["Simplicity is the soul of efficiency.","Austin Freeman"],
+      ["Programs must be written for people to read.","Harold Abelson"],
+      ["Make it work, make it right, make it fast.","Kent Beck"],
+      ["We are what we repeatedly do.","Aristotle"],
+      ["Stay hungry, stay foolish.","Steve Jobs"],
+      ["Premature optimization is the root of all evil.","Donald Knuth"],
+      ["Talk is cheap. Show me the code.","Linus Torvalds"],
+      ["Creativity is intelligence having fun.","(probably not) Einstein"],
+      ["Inspiration exists, but it has to find you working.","Pablo Picasso"],
+    ];
+
+    const emojis = "🌈✨🧪🧠🎲🎯🎨🚀🌙☕️🍀🪐🌀🧩🦄📦🔮🍩🧁🥑🍕".split("");
+
+    function randPick(rng, arr){ return arr[Math.floor(rng()*arr.length)] }
+    function randRange(rng, min,max){ return Math.floor(rng()*(max-min+1))+min }
+
+    function hslToHex(h,s,l){
+      s/=100; l/=100; const k=n=> (n+ h/30)%12; const a=s*Math.min(l,1-l);
+      const f=n=> l - a*Math.max(-1, Math.min(k(n)-3, Math.min(9-k(n),1)));
+      const toHex=x=> (Math.round(255*x)).toString(16).padStart(2,'0');
+      return `#${toHex(f(0))}${toHex(f(8))}${toHex(f(4))}`
+    }
+
+    function randomPalette(rng){
+      if(rng()<0.7) return randPick(rng, palettes);
+      // generate fresh palette 30% of the time
+      const baseH = randRange(rng, 0, 359);
+      return [0,40,75,200,280].map((shift,i)=>hslToHex((baseH+shift)%360, 70, 50 - i*5));
+    }
+
+    function drawArt(seed){
+      const seedStr = String(seed);
+      const rand = mulberry32(xmur3(seedStr)());
+      const svg = document.getElementById('art');
+      svg.innerHTML = '';
+
+      const pal = randomPalette(rand);
+      const bg = pal[0];
+      document.documentElement.style.setProperty('--accent', pal[1]);
+      document.documentElement.style.setProperty('--bg', '#0b1020');
+      document.documentElement.style.setProperty('--card', '#0e1428');
+
+      const w = 900, h = 560;
+      const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
+      const grad = document.createElementNS('http://www.w3.org/2000/svg','radialGradient');
+      grad.setAttribute('id','g');
+      grad.innerHTML = `<stop offset="0%" stop-color="${pal[2]}" stop-opacity="0.25"/><stop offset="100%" stop-color="${pal[3]}" stop-opacity="0"/>`;
+      defs.appendChild(grad);
+
+      const noise = randRange(rand, 2, 6);
+      const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      group.setAttribute('filter','url(#f)');
+
+      for(let i=0;i<120;i++){
+        const cx = randRange(rand, -100, w+100);
+        const cy = randRange(rand, -80, h+80);
+        const r = randRange(rand, 10, 120);
+        const circ = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        circ.setAttribute('cx', cx);
+        circ.setAttribute('cy', cy);
+        circ.setAttribute('r', r);
+        circ.setAttribute('fill', randPick(rand, pal));
+        circ.setAttribute('fill-opacity', (rand()*0.4+0.06).toFixed(2));
+        group.appendChild(circ);
+      }
+
+      // soft spotlight overlay
+      const overlay = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      overlay.setAttribute('x', 0); overlay.setAttribute('y', 0);
+      overlay.setAttribute('width', w); overlay.setAttribute('height', h);
+      overlay.setAttribute('fill', 'url(#g)');
+
+      // svg filter for tiny noise
+      const filter = document.createElementNS('http://www.w3.org/2000/svg','filter');
+      filter.setAttribute('id','f');
+      filter.innerHTML = `
+        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="${noise}" result="n"/>
+        <feColorMatrix type="saturate" values="0" />
+        <feBlend in="SourceGraphic" in2="n" mode="overlay"/>
+      `;
+      defs.appendChild(filter);
+
+      const bgRect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      bgRect.setAttribute('width', w); bgRect.setAttribute('height', h);
+      bgRect.setAttribute('fill', '#0b1020');
+
+      svg.appendChild(defs);
+      svg.appendChild(bgRect);
+      svg.appendChild(group);
+      svg.appendChild(overlay);
+
+      // update side info
+      document.getElementById('paletteText').textContent = pal.join('  ');
+      document.getElementById('noise').textContent = `${noise} octaves`;
+      document.getElementById('seed').textContent = seedStr;
+
+      // emoji chips
+      const chips = document.getElementById('chips');
+      chips.innerHTML = '';
+      const chipCount = randRange(rand, 4, 9);
+      for(let i=0;i<chipCount;i++){
+        const c = document.createElement('div');
+        c.className = 'chip';
+        const e = randPick(rand, emojis);
+        c.textContent = e + '  ' + (Math.random().toString(36).slice(2, 7));
+        chips.appendChild(c);
+      }
+
+      // quote
+      const [q,a] = randPick(rand, quotes);
+      document.getElementById('quote').textContent = `“${q}”`;
+      document.getElementById('author').textContent = '— ' + a;
+      document.getElementById('emoji').textContent = randPick(rand, emojis) + ' ' + randPick(rand, emojis) + ' ' + randPick(rand, emojis);
+
+      // title/tagline tweaks
+      const nouns = ["Nebula", "Dandelion", "Cascade", "Quasar", "Nimbus", "Tangerine", "Lagoon", "Orbit", "Echo", "Pixel"];
+      const adjs = ["Cozy","Electric","Playful","Serene","Noisy","Spicy","Curious","Glitchy","Shiny","Minimal"];
+      document.getElementById('title').textContent = `${randPick(rand, adjs)} ${randPick(rand, nouns)}`;
+      document.getElementById('tagline').textContent = `random • html • ${new Date().toLocaleDateString()}`;
+
+      // permalink
+      const params = new URLSearchParams(location.search);
+      params.set('seed', seedStr);
+      history.replaceState({}, '', `${location.pathname}?${params.toString()}`);
+      document.getElementById('permalink').href = `?${params.toString()}`;
+    }
+
+    function currentSeed(){
+      const p = new URLSearchParams(location.search);
+      return p.get('seed') || Date.now().toString(36);
+    }
+
+    function saveSVGAsPNG(){
+      const svg = document.getElementById('art');
+      const s = new XMLSerializer().serializeToString(svg);
+      const blob = new Blob([s], {type: 'image/svg+xml;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+      img.onload = function(){
+        const canvas = document.createElement('canvas');
+        canvas.width = svg.viewBox.baseVal.width;
+        canvas.height = svg.viewBox.baseVal.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        URL.revokeObjectURL(url);
+        canvas.toBlob(b=>{
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(b);
+          a.download = `random-art-${Date.now()}.png`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+        });
+      };
+      img.src = url;
+    }
+
+    document.getElementById('shuffle').addEventListener('click', ()=>{
+      drawArt(Date.now().toString(36));
+    });
+    document.getElementById('save').addEventListener('click', saveSVGAsPNG);
+
+    // initial render
+    drawArt(currentSeed());
+  </script>
+</body>
+</html>
